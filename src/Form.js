@@ -1,6 +1,6 @@
 import React, { useState, useReducer } from 'react'
 
-import { Auth } from 'aws-amplify'
+import { Auth, API } from 'aws-amplify'
 
 const initialFormState = {
     username: '', password: '', email: '', confirmationCode: ''
@@ -49,6 +49,28 @@ async function signIn({ username, password }, updateFormType) {
     }
 }
 
+async function shorten({url}, updateFormType) {
+    try {
+        let apiName = 'URLShortener';
+        let path = '/short';
+        let init = {
+            body: { url },
+            headers: {
+                Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`,
+                'Access-Control-Request-Headers': "authorization,content-type",
+                'Access-Control-Request-Method': "POST",
+            }
+        };
+        API.post(apiName, path, init).then(response => {
+            // Add your code here
+        }).catch(error => {
+            console.log(error.response)
+        });
+    } catch (err) {
+        console.log('error shortening..', err)
+    }
+}
+
 export default function Form() {
     const [formType, updateFormType] = useState('signUp');
     const [formState, updateFormState] = useReducer(reducer, initialFormState);
@@ -77,7 +99,10 @@ export default function Form() {
                 );
             case 'authenticated':
                 return (
-                    <Shorten />
+                    <Shorten
+                        shorten={() => shorten(formState, updateFormType)}
+                        updateFormState={e => updateFormState({ type: 'updateFormState', e })}
+                    />
                 );
             default:
                 return null
@@ -191,7 +216,7 @@ function Shorten(props) {
                 onChange={e => {e.persist();props.updateFormState(e)}}
                 style={styles.input}
             />
-            <button onClick={props.confirmSignUp} style={styles.button}>
+            <button onClick={props.shorten} style={styles.button}>
                 Shorten!
             </button>
         </div>
