@@ -53,16 +53,15 @@ async function shorten({url}, updateFormType) {
     try {
         let apiName = 'URLShortener';
         let path = '/short';
+        let token = `${(await Auth.currentSession()).getIdToken().getJwtToken()}`;
         let init = {
             body: { url },
             headers: {
-                Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}`,
-                'Access-Control-Request-Headers': "authorization,content-type",
-                'Access-Control-Request-Method': "POST",
+                Authorization: `Bearer ${token}`
             }
         };
         API.post(apiName, path, init).then(response => {
-            // Add your code here
+            updateFormType('shortened')
         }).catch(error => {
             console.log(error.response)
         });
@@ -103,6 +102,10 @@ export default function Form() {
                         shorten={() => shorten(formState, updateFormType)}
                         updateFormState={e => updateFormState({ type: 'updateFormState', e })}
                     />
+                );
+            case 'shortened':
+                return (
+                    <div>Shortened successfully!</div>
                 );
             default:
                 return null
