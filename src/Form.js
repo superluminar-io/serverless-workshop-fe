@@ -71,7 +71,7 @@ async function shorten({url}, updateFormType) {
 }
 
 export default function Form() {
-    const [formType, updateFormType] = useState('signUp');
+    const [formType, updateFormType] = useState('signIn');
     const [formState, updateFormState] = useReducer(reducer, initialFormState);
     function renderForm() {
         switch(formType) {
