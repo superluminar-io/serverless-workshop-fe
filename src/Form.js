@@ -1,4 +1,5 @@
 import React, { useState, useReducer } from 'react'
+import awsConfig from './aws-exports'
 
 import { Auth, API } from 'aws-amplify'
 
@@ -6,11 +7,17 @@ const initialFormState = {
     username: '', password: '', email: '', confirmationCode: ''
 };
 
+const shortEndpoint = awsConfig.API.endpoints[0].endpoint + '/short';
+
 function reducer(state, action) {
     switch(action.type) {
         case 'updateFormState':
             return {
                 ...state, [action.e.target.name]: action.e.target.value
+            };
+        case 'updateShortId':
+            return {
+                ...state, shortId: action.shortId
             };
         default:
             return state
@@ -49,7 +56,7 @@ async function signIn({ username, password }, updateFormType) {
     }
 }
 
-async function shorten({url}, updateFormType) {
+async function shorten({url}, updateFormType, updateShortId) {
     try {
         let apiName = 'URLShortener';
         let path = '/short';
@@ -61,7 +68,8 @@ async function shorten({url}, updateFormType) {
             }
         };
         API.post(apiName, path, init).then(response => {
-            updateFormType('shortened')
+            updateFormType('shortened');
+            updateShortId(response.short_id)
         }).catch(error => {
             console.log(error.response)
         });
@@ -97,15 +105,19 @@ export default function Form() {
                     />
                 );
             case 'authenticated':
+                let updateShortId = shortId => updateFormState({ type: 'updateShortId', shortId })
                 return (
                     <Shorten
-                        shorten={() => shorten(formState, updateFormType)}
+                        shorten={() => shorten(formState, updateFormType, updateShortId)}
                         updateFormState={e => updateFormState({ type: 'updateFormState', e })}
                     />
                 );
             case 'shortened':
                 return (
-                    <div>Shortened successfully!</div>
+                    <div>
+                        <p>Shortened successfully!</p>
+                        <p>{shortEndpoint}/{formState.shortId}</p>
+                    </div>
                 );
             default:
                 return null
