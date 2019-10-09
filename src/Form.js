@@ -60,12 +60,8 @@ async function shorten({url}, updateFormType, updateShortId) {
     try {
         let apiName = 'URLShortener';
         let path = '/short';
-        let token = `${(await Auth.currentSession()).getIdToken().getJwtToken()}`;
         let init = {
-            body: { url },
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            body: { url }
         };
         API.post(apiName, path, init).then(response => {
             updateFormType('shortened');
@@ -79,7 +75,7 @@ async function shorten({url}, updateFormType, updateShortId) {
 }
 
 export default function Form() {
-    const [formType, updateFormType] = useState('signIn');
+    const [formType, updateFormType] = useState('authenticated');
     const [formState, updateFormState] = useReducer(reducer, initialFormState);
     function renderForm() {
         switch(formType) {
