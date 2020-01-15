@@ -1,13 +1,10 @@
 import React, { useState, useReducer } from 'react'
-import awsConfig from './aws-exports'
 
 import { Auth, API } from 'aws-amplify'
 
 const initialFormState = {
     username: '', password: '', email: '', confirmationCode: ''
 };
-
-const shortEndpoint = awsConfig.API.endpoints[0].endpoint + '/short';
 
 function reducer(state, action) {
     switch(action.type) {
@@ -112,7 +109,7 @@ export default function Form() {
                 return (
                     <div>
                         <p>Shortened successfully!</p>
-                        <p>{shortEndpoint}/{formState.shortId}</p>
+                        <a href={formState.shortId}>{formState.shortId}</a>
                     </div>
                 );
             default:
